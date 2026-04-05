@@ -3,7 +3,7 @@
  * Plugin Name:       Navitto Pro
  * Plugin URI:        https://github.com/n-souta/navitto-pro
  * Description:       Pro extension for Navitto: custom preset colors, heading icons, and license activation.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Requires Plugins:  navitto
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NAVITTO_PRO_VERSION', '1.0.0' );
+define( 'NAVITTO_PRO_VERSION', '1.0.1' );
 define( 'NAVITTO_PRO_FILE', __FILE__ );
 define( 'NAVITTO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NAVITTO_PRO_URL', plugin_dir_url( __FILE__ ) );

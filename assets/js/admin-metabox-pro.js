@@ -51,18 +51,20 @@
 		var hiddenInput = document.querySelector('.navitto-icon-picker-value' + sel);
 		if (!btn || !hiddenInput) return;
 		var hasIcon = !!(hiddenInput.value && hiddenInput.value !== 'none' && hiddenInput.value.indexOf(':none') === -1);
-		btn.textContent = hasIcon ? removeIconText : addIconText;
-		btn.title = hasIcon ? removeIconText : addIconText;
+		var label = hasIcon ? removeIconText : addIconText;
+		/* textContent を毎回書き換えると subtree の MutationObserver が再発火してフリーズするため、変化時のみ更新 */
+		if (btn.textContent !== label) btn.textContent = label;
+		if (btn.title !== label) btn.title = label;
 		btn.classList.toggle('navitto-icon-picker-btn--remove', hasIcon);
 	}
 
 	function applyPreview(preview, value) {
 		if (!preview) return;
+		var html = '';
 		if (value && value !== 'none' && value.indexOf(':none') === -1) {
-			preview.innerHTML = getIconHtmlForValue(value) || '';
-		} else {
-			preview.innerHTML = '';
+			html = getIconHtmlForValue(value) || '';
 		}
+		if (preview.innerHTML !== html) preview.innerHTML = html;
 	}
 
 	function enhanceItem(item) {
@@ -144,6 +146,19 @@
 	}
 
 	var h2Area = document.getElementById('cp-h2-select-area');
+	var h2ListObserver = null;
+
+	function runEnhanceBatch() {
+		if (!h2Area) return;
+		if (h2ListObserver) h2ListObserver.disconnect();
+		try {
+			runEnhance();
+			initPlaceholderPreviews();
+		} finally {
+			if (h2ListObserver) h2ListObserver.observe(h2Area, { childList: true, subtree: true });
+		}
+	}
+
 	if (h2Area) {
 		h2Area.addEventListener('change', function(e) {
 			if (!e.target || !e.target.classList.contains('cp-h2-checkbox')) return;
@@ -154,15 +169,13 @@
 			if (iconBtn) iconBtn.disabled = !e.target.checked;
 		});
 
-		var obs = new MutationObserver(function() {
-			runEnhance();
-			initPlaceholderPreviews();
+		h2ListObserver = new MutationObserver(function() {
+			runEnhanceBatch();
 		});
-		obs.observe(h2Area, { childList: true, subtree: true });
+		h2ListObserver.observe(h2Area, { childList: true, subtree: true });
 	}
 
-	runEnhance();
-	initPlaceholderPreviews();
+	runEnhanceBatch();
 
 	function buildPickerModal() {
 		if (pickerModal || !iconRegistry || !iconRegistry.iconNames) return;
